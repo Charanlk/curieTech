@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="     http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd     http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd     http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd     http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+  <munit:config name="welcome_flow_8759.xml"/>
+  <munit:test name="welcome_flow_0" description="Test the welcome-flow happy path scenario where an HTTP request is received and a welcome response is returned">
+    <!-- 
+        Behavior: 
+        Set up event with HTTP request data to simulate incoming HTTP request to the welcome-flow.
+        Configure payload and attributes as needed for the HTTP listener trigger.
+        Reference the sample input payload from file.
+    -->
+    <munit:behavior>
+      <munit:set-event doc:name="Set Event">
+        <munit:payload value="#[MunitTools::getResourceAsString('welcome_flow_8759/welcome_request_2271.json')]" mediaType="application/json" encoding="UTF-8"/>
+        <munit:attributes value="#[{'version':'1.1','method':'POST','scheme':'HTTP','requestPath':'/welcome','queryString':'','remoteAddress':'127.0.0.1','listenerPath':'/welcome','relativePath':'/welcome','headers':{'content-type':'application/json'}}]"/>
+      </munit:set-event>
+    </munit:behavior>
+    <!-- 
+        Execution: 
+        Execute the welcome-flow by calling flow-ref to welcome-flow.
+    -->
+    <munit:execution>
+      <flow-ref name="welcome-flow"/>
+    </munit:execution>
+    <!-- 
+        Validation: 
+        - Verify that the "Log Incoming Request" logger component is called.
+        - Verify that the "Log Response" logger component is called.
+        - Verify that the final payload contains the welcome message from configuration properties.
+        - Verify that the response payload equals "Welcome to Prowess Soft, Hyderabad".
+    -->
+    <munit:validation>
+      <munit-tools:verify-call doc:name="Verify Log Incoming Request" processor="logger" times="1">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute whereValue="Log Incoming Request" attributeName="doc:name"/>
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify Log Response" processor="logger" times="1">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute whereValue="Log Response" attributeName="doc:name"/>
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:assert-equals doc:name="Assert Welcome Message" actual="#[payload]" expected="Welcome to Prowess Soft, Hyderabad" message="Payload does not match welcome message"/>
+    </munit:validation>
+  </munit:test>
+</mule>
